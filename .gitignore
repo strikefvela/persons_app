@@ -1,0 +1,5 @@
+**/node_modules/
+**/notes_backup/
+package-lock.json
+db.json
+**/requests/
