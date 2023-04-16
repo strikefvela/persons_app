@@ -49,6 +49,7 @@ const App = () => {
     : persons;
 
   const updatePhone = ({ ...person }) => {
+    console.log('updatephone', person)
     const confirm =
       window.confirm(`${person.name} is already added to the phonebook, replace the old
     number with a new one?`);
@@ -76,7 +77,6 @@ const App = () => {
     const personObject = {
       name: newName,
       number: newPhone,
-      id: Math.floor(Math.random()),
     };
     const person = persons?.find((p) => p.name === newName);
     if (!person) {
@@ -87,7 +87,7 @@ const App = () => {
         }, 5000);
       });
     } else {
-      updatePhone(person);
+      updatePhone({name: personObject.name, number: personObject.number, id: person.id});
     }
     setSucccessMessage("");
     setNewName("");
