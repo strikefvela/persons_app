@@ -10,12 +10,10 @@ const App = () => {
   const [persons, setPerson] = useState(null);
 
   const hook = () => {
-    personsService
-    .getAllPersons()
-    .then((persons) => {
+    personsService.getAllPersons().then((persons) => {
       setPerson(persons);
     });
-    if(!persons) {
+    if (!persons) {
       return undefined;
     }
   };
@@ -42,11 +40,13 @@ const App = () => {
     setFilterText(event.target.value);
   };
 
-  const filteredPersons = persons?.filter(
-    (persons) =>
-      persons.name.toLowerCase().includes(filterText.toLowerCase()) ||
-      persons.number.toLowerCase().includes(filterText.toLowerCase())
-  );
+  const filteredPersons = filterText
+    ? persons.filter(
+        (person) =>
+          person.name?.toLowerCase().includes(filterText.toLowerCase()) ||
+          String(person.number).includes(filterText)
+      )
+    : persons;
 
   const updatePhone = ({ ...person }) => {
     const confirm =
@@ -61,7 +61,9 @@ const App = () => {
           );
         })
         .catch(() => {
-          setErrorMessage(`person ${person.name} has already been deleted from the server.`);
+          setErrorMessage(
+            `person ${person.name} has already been deleted from the server.`
+          );
           setTimeout(() => {
             setErrorMessage(null);
           }, 5000);
@@ -90,6 +92,7 @@ const App = () => {
     setSucccessMessage("");
     setNewName("");
     setNewPhoneNumber("");
+    hook();
   };
 
   return (
