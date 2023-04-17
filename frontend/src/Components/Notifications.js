@@ -2,7 +2,6 @@ import '../index.css'
 
 const Notification = ({messaage, type}) => {
     if(!messaage)  {
-        console.log('no success', messaage);
         return null;
     } 
     return (

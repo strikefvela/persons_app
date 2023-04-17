@@ -7,23 +7,19 @@ import personsService from "./Services/PersonsService";
 import Notification from "./Components/Notifications";
 
 const App = () => {
-  const [persons, setPerson] = useState(null);
+  const [persons, setPersons] = useState([]);
 
-  const hook = () => {
+  useEffect(() => {
     personsService.getAllPersons().then((persons) => {
-      setPerson(persons);
+      setPersons(persons);
     });
-    if (!persons) {
-      return undefined;
-    }
-  };
-  useEffect(hook, []);
+  }, []);
 
   const [newName, setNewName] = useState("");
   const [newPhone, setNewPhoneNumber] = useState("");
   const [filterText, setFilterText] = useState("");
   const [successMessage, setSucccessMessage] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState(null);
 
   const handleNameChange = (event) => {
     event.preventDefault();
@@ -49,7 +45,6 @@ const App = () => {
     : persons;
 
   const updatePhone = ({ ...person }) => {
-    console.log('updatephone', person)
     const confirm =
       window.confirm(`${person.name} is already added to the phonebook, replace the old
     number with a new one?`);
@@ -57,14 +52,15 @@ const App = () => {
       personsService
         .updatePerson(person.id, person)
         .then((returnedPerson) => {
-          setPerson(
-            persons.map((x) => (person.id !== x.id ? x : returnedPerson))
+          setPersons(
+            // persons.map((x) => (person.id !== x.id ? x : returnedPerson))
+            persons.concat(returnedPerson),
+            setNewName(""),
+            setNewPhoneNumber("")
           );
         })
-        .catch(() => {
-          setErrorMessage(
-            `person ${person.name} has already been deleted from the server.`
-          );
+        .catch((error) => {
+          setErrorMessage(error.response.data.error);
           setTimeout(() => {
             setErrorMessage(null);
           }, 5000);
@@ -80,19 +76,30 @@ const App = () => {
     };
     const person = persons?.find((p) => p.name === newName);
     if (!person) {
-      personsService.createPerson(personObject).then((x) => {
-        setSucccessMessage(`Added ${x.name}`);
-        setTimeout(() => {
-          setSucccessMessage(null);
-        }, 5000);
-      });
+      personsService
+        .createPerson(personObject)
+        .then((x) => {
+          setSucccessMessage(`Added ${x.name}`);
+          setTimeout(() => {
+            setSucccessMessage(null);
+          }, 5000);
+        })
+        .catch((error) => {
+          setErrorMessage(error.response.data.error);
+          setTimeout(() => {
+            setErrorMessage(null);
+          }, 5000);
+        });
     } else {
-      updatePhone({name: personObject.name, number: personObject.number, id: person.id});
+      updatePhone({
+        name: personObject.name,
+        number: personObject.number,
+        id: person.id,
+      });
     }
     setSucccessMessage("");
     setNewName("");
     setNewPhoneNumber("");
-    hook();
   };
 
   return (
